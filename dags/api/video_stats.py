@@ -1,14 +1,24 @@
 import requests
 import json
-import os
-from dotenv import load_dotenv
 from datetime import date
 
-load_dotenv(dotenv_path="./.env")
-API_KEY = os.getenv("API_KEY")
-CHANNEL_HANDLE ="MrBeast"
+# import os
+# from dotenv import load_dotenv
+# load_dotenv(dotenv_path="./.env")
+
+from airflow.decorators import task
+from airflow.models import Variable
+
+
+#API_KEY = os.getenv("API_KEY")
+#CHANNEL_HANDLE ="MrBeast"
+
+API_KEY = Variable.get("API_KEY")
+CHANNEL_HANDLE = Variable.get("CHANNEL_HANDLE")
+
 maxResults = 50
 
+@task 
 def get_playlist_id(): #Get the Playlist ID (Channels)
 
     try:
@@ -35,6 +45,7 @@ def get_playlist_id(): #Get the Playlist ID (Channels)
         raise e
 
 # For second function get Video ID (Playlistitems)
+@task 
 def get_video_ids(playlistId):
     video_ids = []
     pageToken = None
@@ -65,6 +76,7 @@ def get_video_ids(playlistId):
 
 # Function to get Video Data, 7 variables of interest
 
+@task 
 def extract_video_data(video_ids):
 
     extracted_data = []
@@ -106,6 +118,7 @@ def extract_video_data(video_ids):
     except requests.exceptions.RequestException as e:
         raise e
 
+@task 
 def save_to_json(extracted_data):
     file_path =f"./data/YT_data_{date.today()}.json"
 
@@ -119,6 +132,6 @@ if __name__ == "__main__": #__name__ inbuilt python var that is set depending on
     video_data = extract_video_data(video_ids)
     save_to_json(video_data)
     #print(get_video_ids(playlistId))
-    #print(extract_video_data(video_ids))
+    print(extract_video_data(video_ids))
 else:
     print("get_playlist_id won't be executed")
