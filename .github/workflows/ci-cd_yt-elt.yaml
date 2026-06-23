@@ -88,7 +88,7 @@ jobs:
           run: docker compose up -d
         - name: Run Unit and Integration tests
           if: steps.changed-files-tests.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch'
-          run: docker exec -t airflow-worker sh -C "pytest tests/ -v"
+          run: docker exec -t airflow-worker sh -c "pytest tests/ -v"
         - name: Run End-to-End DAG tests
           if: steps.changed-files-tests.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch'
           run: |
